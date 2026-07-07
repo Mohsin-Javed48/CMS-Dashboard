@@ -1,0 +1,36 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Student {
+  id: ID!
+  studentId: Int!
+  name: String!
+  fatherName: String
+  email: String!
+  address: String
+  cnic: String!
+  phone: String!
+  cgpa: Float
+  courses: [Course!]!
+}
+
+type Course {
+  id: ID!
+  courseCode: String!
+  courseName: String!
+  description: String
+  credits: Int!
+  schedule: String
+  isActive: Boolean!
+  enrolledStudents: [Student!]!
+}
+
+type Query {
+  getCourses: [Course!]!
+  getCourse(id: Int!): Course
+}
+
+type Mutation {
+  deleteCourse(id: Int!): Course!
+}
