@@ -1,12 +1,12 @@
-import { http } from "./http";
+import { studentService } from "./studentService";
 import type { Student } from "../lib/types";
 
 export const teacherService = {
   getAllStudents: async (): Promise<Student[]> => {
-    return http.get<Student[]>("/student");
+    return studentService.getStudents();
   },
 
   getStudent: async (studentId: string | number): Promise<Student> => {
-    return http.get<Student>(`/student/${studentId}`);
+    return studentService.getStudentById(studentId);
   },
 };

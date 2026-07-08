@@ -1,160 +1,78 @@
-# Services Folder - API Integration
+# Services Folder - GraphQL Integration
 
-This folder contains service modules that encapsulate all API calls to the backend.
+This folder contains service modules that encapsulate all GraphQL calls to the NestJS/Apollo backend.
 
 ## Structure
 
-- **http.ts** - Base HTTP client with axios interceptors, request/response handling, and auth token management
-- **authService.ts** - Authentication endpoints (login, logout, refresh token)
-- **studentService.ts** - Student-specific endpoints (profile, marks, courses, attendance)
-- **teacherService.ts** - Teacher-specific endpoints (manage students, update marks, reports)
+- **graphqlClient.ts** - Base GraphQL client (`graphql-request`), attaches the auth token from `localStorage` to every request and clears it on a 401 response
+- **studentService.ts** - Student queries/mutations (list, get by student ID, create, enroll in a course)
+- **courseService.ts** - Course queries (list all courses)
+- **marksService.ts** - Marks queries/mutations (list by student, create, update)
+- **teacherService.ts** - Thin wrapper over `studentService` for teacher-facing views
 - **index.ts** - Central export file for all services
+
+There is no auth service: the backend has no auth resolver yet, and the app's current login flow
+(`src/app/login/page.tsx`) resolves the session locally by matching an email against `getStudents()`
+rather than calling a login endpoint.
 
 ## Usage Examples
 
-### Authentication
-
-```typescript
-import { authService } from '@/services';
-
-// Login
-const response = await authService.login({
-  email: 'student@univ.edu',
-  password: 'password123'
-});
-
-// Logout
-await authService.logout();
-
-// Get current user
-const user = await authService.getCurrentUser();
-```
-
-### Student Operations
+### Students
 
 ```typescript
 import { studentService } from '@/services';
 
-// Get student profile
-const profile = await studentService.getProfile();
-
-// Get marks
-const marks = await studentService.getMarks();
-
-// Get enrolled courses
-const courses = await studentService.getEnrolledCourses();
-
-// Download transcript
-const transcript = await studentService.downloadTranscript();
+const students = await studentService.getStudents();
+const student = await studentService.getStudentById(1001); // looked up by business studentId
+await studentService.enrollCourse(courseId, studentId);
 ```
 
-### Teacher Operations
+### Courses
 
 ```typescript
-import { teacherService } from '@/services';
+import { courseService } from '@/services';
 
-// Get all students
-const students = await teacherService.getAllStudents();
+const courses = await courseService.getCourses();
+```
 
-// Get specific student
-const student = await teacherService.getStudent('student-id');
+### Marks
 
-// Update student marks
-await teacherService.updateStudentMarks('student-id', [
-  { subject: 'Mathematics', marks: 85 },
-  { subject: 'Physics', marks: 90 }
-]);
+```typescript
+import { marksService } from '@/services';
 
-// Bulk update marks
-await teacherService.bulkUpdateMarks([
-  {
-    studentId: 's1',
-    marks: [
-      { subject: 'Math', marks: 85 },
-      { subject: 'Physics', marks: 90 }
-    ]
+const marks = await marksService.getMarks(studentId); // fetches all marks, filters client-side
+await marksService.updateMark(markId, { marksObtained: 85, grade: 'A' });
+```
+
+### Raw GraphQL requests
+
+For queries/mutations not covered by a service, use `gqlRequest` directly:
+
+```typescript
+import { gql, gqlRequest } from '@/services';
+
+const data = await gqlRequest(gql`
+  query GetCourse($id: Int!) {
+    getCourse(id: $id) {
+      courseName
+    }
   }
-]);
-
-// Export marks
-const csv = await teacherService.exportMarksCSV();
-
-// Generate report card
-const reportCard = await teacherService.generateReportCard('student-id');
+`, { id: 3 });
 ```
 
-### Error Handling
+## Configuration
 
-All services throw errors when API calls fail. Use try-catch blocks:
-
-```typescript
-try {
-  const data = await studentService.getMarks();
-} catch (error) {
-  console.error('Failed to fetch marks:', error);
-}
-```
-
-### HTTP Client
-
-For custom requests not covered by services, use the HTTP client:
-
-```typescript
-import { http } from '@/services';
-
-// GET request
-const data = await http.get('/custom-endpoint');
-
-// POST request
-const result = await http.post('/custom-endpoint', { data: 'value' });
-
-// PUT request
-await http.put('/custom-endpoint', { data: 'updated' });
-
-// DELETE request
-await http.delete('/custom-endpoint');
-```
+Set `NEXT_PUBLIC_GRAPHQL_URL` to point at the backend's GraphQL endpoint (defaults to
+`http://localhost:3001/graphql`).
 
 ## Features
 
-- **Automatic Authorization**: Auth token is automatically included in requests
-- **Token Management**: Tokens stored in localStorage and automatically attached to headers
-- **Error Handling**: Response interceptor handles 401 errors and clears auth data
-- **Type Safety**: TypeScript interfaces for all request/response types
-- **Centralized Config**: All API configuration in one place
-
-## Backend Endpoint Reference (Template)
-
-The services expect the following backend API structure:
-
-```
-POST   /auth/login              - User login
-POST   /auth/logout             - User logout
-POST   /auth/refresh            - Refresh token
-GET    /auth/me                 - Get current user
-POST   /auth/verify             - Verify token
-
-GET    /students/profile        - Get student profile
-GET    /students/marks          - Get student marks
-GET    /students/{id}/marks     - Get specific student marks
-GET    /students/courses        - Get enrolled courses
-PUT    /students/profile        - Update profile
-GET    /students/attendance     - Get attendance
-
-GET    /teachers/students       - Get all students
-GET    /teachers/students/{id}  - Get student details
-GET    /teachers/students/{id}/marks       - Get marks
-PUT    /teachers/students/{id}/marks       - Update marks
-POST   /teachers/marks/bulk-update         - Bulk update marks
-GET    /teachers/students/{id}/statistics  - Get statistics
-GET    /teachers/students/{id}/report-card - Generate report
-```
+- **Automatic Authorization**: Auth token (if present) is attached as a Bearer header on every request
+- **Error Handling**: `gqlRequest` logs GraphQL errors and clears stored auth on a 401
+- **Type Safety**: TypeScript interfaces for all query/mutation results, shared with the rest of the app via `lib/types`
 
 ## Future Enhancements
 
-- Add caching layer (React Query / SWR)
-- Add request debouncing/throttling
-- Add offline support with Service Workers
-- Add comprehensive error types
-- Add request/response logging middleware
-- Add retry logic for failed requests
+- Add a real auth resolver on the backend and wire up `login`/`logout`/`me`
+- Add caching (Apollo Client or React Query) instead of one-off `gqlRequest` calls
+- Add optimistic updates for mark edits

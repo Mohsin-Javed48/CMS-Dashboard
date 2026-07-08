@@ -28,9 +28,23 @@ export class StudentService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(studentId: number) {
     return this.prisma.student.findUnique({
-      where: { id },
+      where: { studentId },
+      include: {
+        courses: true,
+      },
+    });
+  }
+
+  async enrollInCourse(studentId: number, courseId: number) {
+    return this.prisma.student.update({
+      where: { studentId },
+      data: {
+        courses: {
+          connect: { id: courseId },
+        },
+      },
       include: {
         courses: true,
       },

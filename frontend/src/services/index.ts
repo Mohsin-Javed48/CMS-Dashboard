@@ -1,11 +1,10 @@
 // Main export file for all services
-export { authService } from './authService';
 export { studentService } from './studentService';
 export { teacherService } from './teacherService';
+export { courseService } from './courseService';
 export { marksService } from './marksService';
-export { http, apiClient, request } from './http';
+export { graphqlClient, gqlRequest, gql } from './graphqlClient';
 
 // Re-export types
-export type { LoginRequest, LoginResponse, RefreshTokenResponse } from './authService';
 export type { Student } from '../lib/types';
 export type { Course, Mark } from '../lib/types';

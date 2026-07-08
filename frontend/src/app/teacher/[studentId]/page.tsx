@@ -7,42 +7,59 @@ import { studentService } from "../../../services/studentService";
 import { marksService } from "../../../services/marksService";
 import type { Mark, Student } from "../../../lib/types";
 
+function buildMarksForCourses(student: Student, existingMarks: Mark[]): Mark[] {
+  const marksByCourseId = new Map(
+    existingMarks.map((mark) => [String(mark.courseId), mark]),
+  );
+
+  return (student.courses ?? []).map((course) => {
+    const courseId = Number(course.id ?? course._id ?? course.courseCode);
+    return (
+      marksByCourseId.get(String(courseId)) ?? {
+        studentId: student.studentId,
+        courseId,
+        courseName: course.courseName,
+        marksObtained: 0,
+        grade: "",
+        isActive: true,
+      }
+    );
+  });
+}
+
 export default function StudentDetailPage() {
   const [student, setStudent] = useState<Student | null>(null);
   const [marks, setMarks] = useState<Mark[]>([]);
   const [loading, setLoading] = useState(true);
+  const [routeStudentId, setRouteStudentId] = useState<number | null>(null);
+
+  const loadData = async (studentId: number) => {
+    const currentStudent = await studentService.getStudentById(studentId);
+    const allMarks = await marksService.getMarks(
+      String(currentStudent.studentId),
+    );
+    setStudent(currentStudent);
+    setMarks(buildMarksForCourses(currentStudent, allMarks));
+  };
 
   useEffect(() => {
-    const load = async () => {
-      const parts = window.location.pathname.split("/");
-      const id = parts[parts.length - 1];
-      const studentId = Number(id);
+    const parts = window.location.pathname.split("/");
+    const idFromUrl = Number(parts[parts.length - 1]);
 
-      if (Number.isNaN(studentId)) {
-        setStudent(null);
-        setMarks([]);
-        setLoading(false);
-        return;
-      }
-
-      const currentStudent = await studentService.getStudentById(studentId);
-      const allMarks = await marksService.getMarks(
-        String(currentStudent.studentId),
-      );
-      setStudent(currentStudent);
-      setMarks(
-        allMarks.filter(
-          (mark) => String(mark.studentId) === String(currentStudent.studentId),
-        ),
-      );
-      setLoading(false);
-    };
-
-    load().catch(() => {
+    if (Number.isNaN(idFromUrl)) {
       setStudent(null);
       setMarks([]);
       setLoading(false);
-    });
+      return;
+    }
+
+    setRouteStudentId(idFromUrl);
+    loadData(idFromUrl)
+      .catch(() => {
+        setStudent(null);
+        setMarks([]);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const enrolledCourses = useMemo(() => student?.courses ?? [], [student]);
@@ -149,19 +166,28 @@ export default function StudentDetailPage() {
             onSave={async (updatedMarks) => {
               try {
                 await Promise.all(
-                  updatedMarks
-                    .filter((mark) => Boolean(mark.id || mark._id))
-                    .map((mark) =>
-                      marksService.updateMark(mark.id ?? mark._id ?? "", {
-                        marksObtained: mark.marksObtained,
-                        grade: mark.grade,
-                        isActive: mark.isActive,
-                      }),
-                    ),
+                  updatedMarks.map((mark) =>
+                    mark.id || mark._id
+                      ? marksService.updateMark(String(mark.id ?? mark._id), {
+                          marksObtained: mark.marksObtained,
+                          grade: mark.grade,
+                          isActive: mark.isActive,
+                        })
+                      : marksService.createMark({
+                          studentId: String(mark.studentId),
+                          courseId: mark.courseId,
+                          marksObtained: mark.marksObtained,
+                          grade: mark.grade,
+                          isActive: mark.isActive ?? true,
+                        }),
+                  ),
                 );
-                setMarks(updatedMarks);
+                if (routeStudentId !== null) {
+                  await loadData(routeStudentId);
+                }
                 alert("Marks updated successfully.");
               } catch (error) {
+                console.error(error);
                 alert("Failed to update marks.");
               }
             }}

@@ -2,6 +2,17 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Course {
+  id: ID!
+  courseCode: String!
+  courseName: String!
+  description: String
+  credits: Int!
+  schedule: String
+  isActive: Boolean!
+  enrolledStudents: [Student!]!
+}
+
 type Student {
   id: ID!
   studentId: Int!
@@ -15,22 +26,85 @@ type Student {
   courses: [Course!]!
 }
 
-type Course {
+type Mark {
   id: ID!
-  courseCode: String!
-  courseName: String!
-  description: String
-  credits: Int!
-  schedule: String
+  studentId: String!
+  courseId: Int!
+  marksObtained: Int!
+  grade: String!
   isActive: Boolean!
-  enrolledStudents: [Student!]!
+  course: Course!
 }
 
 type Query {
+  getStudents: [Student!]!
+  getStudentById(id: Float!): Student!
+  getMarks: [Mark!]!
+  getMarksByStudentId(id: Float!): Mark!
   getCourses: [Course!]!
   getCourse(id: Int!): Course
 }
 
 type Mutation {
+  createStudent(input: CreateStudentInput!): Student!
+  updateStudent(id: Float!, input: UpdateStudentInput!): Student!
+  deleteStudent(id: Float!): Student!
+  enrollStudentInCourse(studentId: Float!, courseId: Float!): Student!
+  createMark(input: CreateMarkInput!): Mark!
+  updateMark(id: Float!, input: UpdateMarkInput!): Mark!
+  deleteMark(id: Float!): Mark!
+  createCourse(input: CreateCourseInput!): Course!
   deleteCourse(id: Int!): Course!
+}
+
+input CreateStudentInput {
+  studentId: Float!
+  name: String!
+  fatherName: String
+  email: String!
+  address: String
+  cnic: String!
+  phone: String!
+  cgpa: Float
+  courses: [Float!]
+}
+
+input UpdateStudentInput {
+  studentId: Float
+  name: String
+  fatherName: String
+  email: String
+  address: String
+  cnic: String
+  phone: String
+  cgpa: Float
+  courses: [Float!]
+  id: ID!
+}
+
+input CreateMarkInput {
+  studentId: String!
+  courseId: Float!
+  marksObtained: Float!
+  grade: String!
+  isActive: Boolean!
+}
+
+input UpdateMarkInput {
+  studentId: String
+  courseId: Float
+  marksObtained: Float
+  grade: String
+  isActive: Boolean
+  id: Int!
+}
+
+input CreateCourseInput {
+  courseCode: String!
+  courseName: String!
+  description: String
+  credits: Int!
+  schedule: String
+  isActive: Boolean
+  enrolledStudents: [Int!]
 }

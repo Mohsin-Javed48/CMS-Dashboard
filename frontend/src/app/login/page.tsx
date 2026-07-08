@@ -10,7 +10,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState("");
 
-  async function handleLogin(email: string, password: string) {
+  async function handleLogin(email: string, _password: string) {
     setError("");
 
     if (email.toLowerCase().includes("teacher")) {
@@ -72,7 +72,7 @@ export default function LoginPage() {
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
               <p className="font-semibold text-slate-800">Teacher Mode</p>
               <p className="text-slate-600">
-                Use an email containing "teacher".
+                Use an email containing &quot;teacher&quot;.
               </p>
             </div>
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">

@@ -26,6 +26,14 @@ export class StudentResolver {
     return this.studentService.remove(id);
   }
 
+  @Mutation(() => Student)
+  async enrollStudentInCourse(
+    @Args('studentId') studentId: number,
+    @Args('courseId') courseId: number,
+  ) {
+    return this.studentService.enrollInCourse(studentId, courseId);
+  }
+
   @Query(() => [Student])
   async getStudents() {
     return this.studentService.findAll();

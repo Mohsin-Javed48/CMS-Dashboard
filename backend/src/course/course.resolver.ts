@@ -12,7 +12,7 @@ export class CourseResolver {
     return this.courseService.findAll();
   }
 
-  @Query(() => Course)
+  @Mutation(() => Course)
   createCourse(@Args('input') input: CreateCourseInput) {
     return this.courseService.createCourse(input);
   }

@@ -8,11 +8,9 @@ export class CourseService {
 
   // Get all courses
   async findAll() {
-    // return this.prisma.course.findMany();
-    return {
-      message:
-        'This is a placeholder response. Implement the findAll method to return actual courses from the database.',
-    };
+    return this.prisma.course.findMany({
+      include: { enrolledStudents: true },
+    });
   }
 
   // Get single course

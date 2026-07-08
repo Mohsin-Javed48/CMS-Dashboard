@@ -4,24 +4,11 @@ import React, { useEffect, useState } from "react";
 import type { Mark } from "../lib/types";
 
 function getCourseLabel(course: Mark["courseId"], courseName?: string) {
-  if (typeof course === "string") {
-    return courseName ?? course;
-  }
-
-  return (
-    course.courseName ??
-    course.courseCode ??
-    course._id ??
-    course.id ??
-    courseName ??
-    "Unknown course"
-  );
+  return courseName ?? `Course #${course}`;
 }
 
 function getCourseKey(course: Mark["courseId"]) {
-  return typeof course === "string"
-    ? course
-    : course._id ?? course.id ?? course.courseCode;
+  return course;
 }
 
 export default function MarksTable({

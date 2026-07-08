@@ -10,16 +10,20 @@ export class MarkService {
   async createMark(input: CreateMarkInput) {
     return this.prisma.mark.create({
       data: input,
+      include: { course: true },
     });
   }
 
   async findAll() {
-    return this.prisma.mark.findMany();
+    return this.prisma.mark.findMany({
+      include: { course: true },
+    });
   }
 
   async findOne(id: number) {
     return this.prisma.mark.findUnique({
       where: { id },
+      include: { course: true },
     });
   }
 
@@ -27,12 +31,14 @@ export class MarkService {
     return this.prisma.mark.update({
       where: { id },
       data: input,
+      include: { course: true },
     });
   }
 
   async deleteMark(id: number) {
     return this.prisma.mark.delete({
       where: { id },
+      include: { course: true },
     });
   }
 }

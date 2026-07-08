@@ -9,8 +9,6 @@ export type Course = {
   isActive?: boolean;
 };
 
-export type CourseRef = string | Course;
-
 export type Student = {
   _id?: string;
   id?: string;
@@ -30,7 +28,7 @@ export type Mark = {
   _id?: string;
   id?: string;
   studentId: string | number;
-  courseId: CourseRef;
+  courseId: number;
   marksObtained: number;
   grade: string;
   isActive?: boolean;

@@ -39,7 +39,7 @@ export default function LoginForm({ onLogin }: { onLogin: (email: string, passwo
       <div>
         <button className="cms-button cms-button-primary w-full">Login</button>
       </div>
-      <div className="text-xs text-slate-500">Tip: use an email containing "teacher" to login as teacher.</div>
+      <div className="text-xs text-slate-500">Tip: use an email containing &quot;teacher&quot; to login as teacher.</div>
     </form>
   );
 }
