@@ -36,6 +36,7 @@ model Course {
   schedule        String?
   isActive        Boolean  @default(true)
   enrolledStudents Student[] @relation("StudentCourses")
+  marks           Mark[]
 
   @@map("course")
 }
