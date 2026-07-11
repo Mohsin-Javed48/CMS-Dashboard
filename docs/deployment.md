@@ -147,7 +147,7 @@ pm2 status
 curl -I https://mohsin-javed.online
 # expect HTTP/2 200
 
-curl -I https://api.mohsin-javed.online/api/health
+curl -I https://api.mohsin-javed.online/graphql
 # expect HTTP/2 200
 ```
 
