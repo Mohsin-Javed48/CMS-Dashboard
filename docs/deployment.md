@@ -83,7 +83,7 @@ Create the frontend production env file (from `frontend/.env.production.example`
 
 ```bash
 cat > frontend/.env.production <<'EOF'
-NEXT_PUBLIC_API_URL=https://api.mohsin-javed.online
+NEXT_PUBLIC_GRAPHQL_URL=https://api.mohsin-javed.online/graphql
 EOF
 ```
 
@@ -147,8 +147,10 @@ pm2 status
 curl -I https://mohsin-javed.online
 # expect HTTP/2 200
 
-curl -I https://api.mohsin-javed.online/graphql
-# expect HTTP/2 200
+curl -s -o /dev/null -w '%{http_code}\n' -X POST https://api.mohsin-javed.online/graphql \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"{__typename}"}'
+# expect 200
 ```
 
 ## 7. Redeploy checklist
