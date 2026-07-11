@@ -10,8 +10,10 @@ TLS, with PostgreSQL running on the same instance.
 
 - Monorepo: pnpm workspaces, `backend` (NestJS, port 3001, Prisma → PostgreSQL, GraphQL
   at `/graphql`) and `frontend` (Next.js 14, port 3000).
-- EC2 instance already exists (Ubuntu 22.04/24.04), reachable via SSH. This design does
-  not cover instance/security-group provisioning.
+- EC2 instance already exists (Ubuntu 22.04/24.04), reachable via SSH, with an Elastic
+  IP attached. This design does not cover instance/security-group/EIP provisioning —
+  DNS A records just need to point at the existing Elastic IP, and it won't change
+  across instance stop/start/reboot.
 - Domain: `mohsin-javed.online`, DNS controlled by the user.
 - Code reaches the instance via `git clone`/`git pull` from
   `https://github.com/Mohsin-Javed48/CMS-Dashboard.git`.
