@@ -22,7 +22,7 @@ module.exports = {
     {
       name: 'cms-frontend',
       cwd: path.join(__dirname, 'frontend'),
-      script: 'node_modules/.bin/next',
+      script: 'node_modules/next/dist/bin/next',
       args: 'start -p 3000',
       instances: 1,
       exec_mode: 'fork',
